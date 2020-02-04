@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply from: new File(rootProject.projectDir, 'liquidcore.build.gradle')
 
 android {
     compileSdkVersion 29
@@ -17,12 +18,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
+
+task copyClojureBundle(type: Copy) {
+    from file("build-clj/dev/app.js")
+    into file("src/main/res/raw")
+}
+
+preBuild.dependsOn copyClojureBundle
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
