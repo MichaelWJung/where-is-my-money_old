@@ -1,5 +1,5 @@
-(defproject clojure-reframe "0.1.0-SNAPSHOT"
-  :source-paths ["src/clj"]
+(defproject where-is-my-money "0.1.0-SNAPSHOT"
+  :source-paths ["src/clj" "src/clj-test"]
   :dependencies [[org.clojure/clojure       "1.10.1"]
                  [org.clojure/clojurescript "1.10.597"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
@@ -24,6 +24,9 @@
                                :compiler-options {:output-feature-set :es5}
                                ; :pretty-print true
                                :modules    {:app {:init-fn app.core/-main}}
-                               }}}
+                               }
+                         :test {:target :node-test
+                                :output-to "build-clj/test.js"
+                                :autorun true}}}
 
   :aliases {"dev-auto" ["shadow" "watch" "app"]})
