@@ -1,4 +1,4 @@
-package dev.michaeljung.androidclojurereframetemplate;
+package dev.michaeljung.whereismymoney;
 
 import android.content.Context;
 
