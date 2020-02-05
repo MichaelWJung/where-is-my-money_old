@@ -101,19 +101,19 @@
 (defn ^:export generate-transactions []
   (clj->json (map generate-transaction (range 200))))
 
-(defn- -main [& args]
-  (rf/reg-event-db              ;; sets up initial application state
-    :initialize                 ;; usage:  (dispatch [:initialize])
-    (fn [_ _]                   ;; the two parameters are not important here, so use _
-      {:time (js/Date.)         ;; What it returns becomes the new application state
-       :time-color "#f88"}))
-  ; (js/setInterval (fn [] nil) 1000)
-  ; (.on js/LiquidCore
-  ;      "ping"
-  ;      (fn []
-  ;        (.emit js/LiquidCore "pong" #js {:message "Hallo Welt!"})
-  ;        (.exit js/process 0)))
-  ; (.emit js/LiquidCore "ready")
-  )
+; (defn- -main [& args]
+;   (rf/reg-event-db              ;; sets up initial application state
+;     :initialize                 ;; usage:  (dispatch [:initialize])
+;     (fn [_ _]                   ;; the two parameters are not important here, so use _
+;       {:time (js/Date.)         ;; What it returns becomes the new application state
+;        :time-color "#f88"}))
+;   ; (js/setInterval (fn [] nil) 1000)
+;   ; (.on js/LiquidCore
+;   ;      "ping"
+;   ;      (fn []
+;   ;        (.emit js/LiquidCore "pong" #js {:message "Hallo Welt!"})
+;   ;        (.exit js/process 0)))
+;   ; (.emit js/LiquidCore "ready")
+;   )
 
-(set! *main-cli-fn* -main)
+; (set! *main-cli-fn* -main)

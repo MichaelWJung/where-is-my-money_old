@@ -99,7 +99,7 @@ public class CljsApplication extends android.app.Application {
 
     private URI getCompiledClojureScriptCodeUri() {
         try {
-            return new URI("android.resource://dev.michaeljung.clojurereframe/raw/app");
+            return new URI("android.resource://dev.michaeljung.whereismymoney/raw/app");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

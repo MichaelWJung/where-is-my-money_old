@@ -1,11 +1,10 @@
 (ns app.core
   (:require [app.android :as a]
-            ; [app.db]
-            ; [app.events]
+            [app.db]
+            [app.events]
             [app.store :as st]
-            ; [app.subs]
+            [app.subs]
             [re-frame.core :as rf]))
-
 
 (defn- prevent-exit-with-callback []
   (js/setInterval (fn [] nil) 1000))
