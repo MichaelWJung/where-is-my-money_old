@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 /.lsp
+/node_modules
+/.liquidcore/*.aar

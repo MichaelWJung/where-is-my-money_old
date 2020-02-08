@@ -14,11 +14,14 @@ buildscript {
     }
 }
 
+plugins {
+    id "de.undercouch.download" version "4.0.4"
+}
+
 allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://jitpack.io' }
     }
 }
 

@@ -1,0 +1,20 @@
+{
+  "name": "whereismymoney",
+  "version": "1.0.0",
+  "description": "",
+  "main": "example.js",
+  "dependencies": {
+    "liquidcore": "^0.7.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "server": "node node_modules/liquidcore/lib/cli.js server",
+    "bundler": "node node_modules/liquidcore/lib/cli.js bundle",
+    "init": "node node_modules/liquidcore/lib/cli.js init",
+    "gradle-config": "node node_modules/liquidcore/lib/cli.js gradle",
+    "pod-config": "node node_modules/liquidcore/lib/cli.js pod",
+    "postinstall": "node node_modules/liquidcore/lib/cli.js postinstall"
+  },
+  "author": "",
+  "license": "ISC"
+}
