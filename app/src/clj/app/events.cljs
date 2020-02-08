@@ -4,6 +4,5 @@
 
 (rf/reg-event-db
   :initialize-db
-  (fn [_ _]
-    default-db))
-
+  (fn [_ [_ stored]]
+    (assoc default-db :data stored)))

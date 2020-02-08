@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/transactionlist_item_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingTop="6dp">
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:textAlignment="textEnd"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text=""
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            android:id="@+id/balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:textAlignment="textEnd"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+    </LinearLayout>
+</LinearLayout>

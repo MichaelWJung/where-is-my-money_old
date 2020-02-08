@@ -3,4 +3,6 @@
             [re-frame.core :as rf]))
 
 (def default-db
-  {:transactions {:message "blub"}})
+  {:data {:transactions []
+          :accounts {}
+          :currencies []}})
