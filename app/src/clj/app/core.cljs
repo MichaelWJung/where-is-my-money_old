@@ -5,6 +5,7 @@
             [app.store :as st]
             [app.subs]
             [app.test-data :refer [generate-accounts generate-transactions]]
+            [clojure.spec.alpha :as s]
             [re-frame.core :as rf]))
 
 (defn- prevent-exit-with-callback []
@@ -24,6 +25,7 @@
             (save [_ data] (a/data->store data)))))
 
 (defn -main [& _]
+  (s/check-asserts true)
   (prevent-exit-with-callback)
   (initialize-store)
   (a/setup-android-interaction initialize)

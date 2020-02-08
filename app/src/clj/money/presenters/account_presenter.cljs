@@ -5,12 +5,13 @@
             [re-frame.core :as rf]
             [money.core.transaction :as t]))
 
+(s/def ::id int?)
 (s/def ::description string?)
 (s/def ::other-account int?)
 (s/def ::amount number?)
 (s/def ::date int?)
 (s/def ::reduced-transaction
-  (s/keys :req [::description ::other-account ::amount ::date]))
+  (s/keys :req [::id ::description ::other-account ::amount ::date]))
 (s/def ::reduced-transactions (s/coll-of ::reduced-transaction))
 (s/def ::balance number?)
 (s/def ::balances (s/coll-of ::balance))
@@ -27,8 +28,11 @@
   (first (remove #(= this-account-id %) (map ::t/account splits))))
 
 (defn reduce-transaction [transaction accounts account-id]
+  (s/assert ::t/transaction transaction)
+  (s/assert ::a/accounts accounts)
   (let [splits (::t/splits transaction)]
-    {::description (::t/description transaction)
+    {::id (::t/id transaction)
+     ::description (::t/description transaction)
      ::amount (get-amount account-id splits)
      ::date (::t/date transaction)
      ::other-account (get-other-account-id account-id splits)}))
@@ -42,6 +46,8 @@
     (last v)))
 
 (defn reduce-transactions [transactions accounts account-id]
+  (s/assert ::t/transactions transactions)
+  (s/assert ::a/accounts accounts)
   (let [reduced-transactions
         (map #(reduce-transaction % accounts account-id) transactions)]
     {::reduced-transactions reduced-transactions
@@ -57,14 +63,18 @@
   (::a/name (get accounts id)))
 
 (defn present-transaction [transaction balance accounts locale]
-  {:description (::description transaction)
+  (s/assert ::reduced-transaction transaction)
+  (s/assert ::a/accounts accounts)
+  {:id (::id transaction)
+   :description (::description transaction)
    :amount (str (::amount transaction))
    :date (convert-date (::date transaction) locale)
    :account (get-account-name (::other-account transaction) accounts)
    :balance (str balance)})
 
-(defn present-transactions [transactions accounts locale]
-  (map #(present-transaction %1 %2 accounts locale)
-       (::reduced-transactions transactions)
-       (::balances transactions)))
-
+(defn present-transactions [transactions-and-balances accounts locale]
+  (s/assert ::a/accounts accounts)
+  (let [transactions (::reduced-transactions transactions-and-balances)
+        balances (::balances transactions-and-balances)]
+    (s/assert ::reduced-transactions transactions)
+    (map #(present-transaction %1 %2 accounts locale) transactions balances)))

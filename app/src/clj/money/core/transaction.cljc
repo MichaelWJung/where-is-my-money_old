@@ -3,6 +3,7 @@
             [clojure.set]
             [money.core.currency :as c]))
 
+(s/def ::id int?)
 (s/def ::description string?)
 (s/def ::account int?)
 (s/def ::amount number?)
@@ -11,8 +12,9 @@
 (s/def ::split (s/keys :req [::description ::account ::amount]))
 (s/def ::splits (s/coll-of ::split :kind vector? :min-count 2))
 
-(s/def ::transaction (s/keys :req [::description ::date ::splits]
+(s/def ::transaction (s/keys :req [::id ::description ::date ::splits]
                              :opt [::c/exchange-rate]))
+(s/def ::transactions (s/coll-of ::transaction))
 
 (defn- get-accounts [splits]
   (into #{} (map ::account splits)))

@@ -26,8 +26,9 @@
    ::t/account account
    ::t/amount amount})
 
-(defn- transaction [description date amount account_id]
-  {::t/description description
+(defn- transaction [id description date amount account_id]
+  {::t/id id
+   ::t/description description
    ::t/date date
    ::t/splits [(split 1 amount) (split account_id (- amount))]})
 
@@ -42,28 +43,32 @@
          (and (= reduced-transaction expected)
               (s/valid? ::ap/reduced-transaction reduced-transaction)))
 
-       (transaction "Hotel" 987654 123 2)
-       {::ap/description "Hotel"
+       (transaction 7 "Hotel" 987654 123 2)
+       {::ap/id 7
+        ::ap/description "Hotel"
         ::ap/amount 123
         ::ap/date 987654
         ::ap/other-account 2}))
 
 (deftest reduce-transactions
   (is (= (ap/reduce-transactions
-           [(transaction "Hotel" 987654 123 2)
-            (transaction "Movie theater" 555666 444 3)
-            (transaction "Taxi" 11111 22 2)]
+           [(transaction 1 "Hotel" 987654 123 2)
+            (transaction 2 "Movie theater" 555666 444 3)
+            (transaction 3 "Taxi" 11111 22 2)]
            accounts
            1)
-         {::ap/reduced-transactions [{::ap/description "Hotel"
+         {::ap/reduced-transactions [{::ap/id 1
+                                      ::ap/description "Hotel"
                                       ::ap/amount 123
                                       ::ap/date 987654
                                       ::ap/other-account 2}
-                                     {::ap/description "Movie theater"
+                                     {::ap/id 2
+                                      ::ap/description "Movie theater"
                                       ::ap/amount 444
                                       ::ap/date 555666
                                       ::ap/other-account 3}
-                                     {::ap/description "Taxi"
+                                     {::ap/id 3
+                                      ::ap/description "Taxi"
                                       ::ap/amount 22
                                       ::ap/date 11111
                                       ::ap/other-account 2}]
@@ -75,25 +80,29 @@
          (= (ap/present-transaction transaction balance accounts locale)
             expected)
 
-         {::ap/description "Hotel"
+         {::ap/id 7
+          ::ap/description "Hotel"
           ::ap/amount 123
           ::ap/date 1578830400000
           ::ap/other-account 2}
          123
          "de-DE"
-         {:description "Hotel"
+         {:id 7
+          :description "Hotel"
           :amount "123"
           :date "12. Jan. 2020"
           :account "Travel"
           :balance "123"}
 
-         {::ap/description "Taxi"
+         {::ap/id 8
+          ::ap/description "Taxi"
           ::ap/amount 42
           ::ap/date 1578830400000
           ::ap/other-account 2}
          456
          "en-US"
-         {:description "Taxi"
+         {:id 8
+          :description "Taxi"
           :amount "42"
           :date "Jan 12, 2020"
           :account "Travel"
@@ -102,11 +111,13 @@
 
 (deftest present-transactions
   (is (= (ap/present-transactions
-           {::ap/reduced-transactions [{::ap/description "Hotel"
+           {::ap/reduced-transactions [{::ap/id 5
+                                        ::ap/description "Hotel"
                                         ::ap/amount 123
                                         ::ap/date 1578830400000
                                         ::ap/other-account 2}
-                                       {::ap/description "Taxi"
+                                       {::ap/id 6
+                                        ::ap/description "Taxi"
                                         ::ap/amount 42
                                         ::ap/date 1578916800000
                                         ::ap/other-account 2}]
@@ -114,12 +125,14 @@
            accounts
            "de-DE")
 
-         [{:description "Hotel"
+         [{:id 5
+           :description "Hotel"
            :amount "123"
            :date "12. Jan. 2020"
            :account "Travel"
            :balance "123"}
-          {:description "Taxi"
+          {:id 6
+           :description "Taxi"
            :amount "42"
            :date "13. Jan. 2020"
            :account "Travel"

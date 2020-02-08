@@ -18,7 +18,8 @@
     ::t/account account2}])
 
 (defn- generate-transaction [i]
-  {::t/description (str "Transaktion " i)
+  {::t/id i
+   ::t/description (str "Transaktion " i)
    ::t/splits (generate-splits [0 (+ 1 (mod i 5))] (index-to-amount i))
    ::t/date (get-date i)})
 
@@ -32,4 +33,4 @@
       ::a/type :normal}])
 
 (defn generate-accounts []
-  (into {} (map generate-account (range 5))))
+  (into {} (map generate-account (range 6))))

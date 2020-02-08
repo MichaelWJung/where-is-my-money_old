@@ -29,8 +29,10 @@
          false {::t/description "abc" ::t/date 1}
          false {::t/description "abc" ::t/splits splits}
          false {::t/date 1 ::splits splits}
-         true {::t/description "abc" ::t/date 1 ::t/splits splits}
-         true {::t/description "abc"
+         false {::t/description "abc" ::t/date 1 ::t/splits splits}
+         true {::t/id 1 ::t/description "abc" ::t/date 1 ::t/splits splits}
+         true {::t/id 1
+               ::t/description "abc"
                ::t/date 1
                ::t/splits splits
                ::c/exchange-rate [1 2 1.25]})))

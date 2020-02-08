@@ -21,12 +21,14 @@
                                :optimizations :simple
                                ; :optimizations :advanced
                                :output-dir "build-clj/dev"
-                               :compiler-options {:output-feature-set :es5}
+                               :compiler-options {:output-feature-set :es5
+                                                  :elide-asserts false}
                                ; :pretty-print true
                                :modules    {:app {:init-fn app.core/-main}}
                                }
                          :test {:target :node-test
                                 :output-to "build-clj/test.js"
-                                :autorun true}}}
+                                :autorun true
+                                :main money.test-runner/main}}}
 
   :aliases {"dev-auto" ["shadow" "watch" "app"]})
