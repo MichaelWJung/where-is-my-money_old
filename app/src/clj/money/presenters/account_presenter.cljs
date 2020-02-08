@@ -46,7 +46,7 @@
     (last v)))
 
 (defn reduce-transactions [transactions accounts account-id]
-  (s/assert ::t/transactions transactions)
+  (s/assert (s/coll-of ::t/transaction) transactions)
   (s/assert ::a/accounts accounts)
   (let [reduced-transactions
         (map #(reduce-transaction % accounts account-id) transactions)]

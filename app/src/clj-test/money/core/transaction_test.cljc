@@ -52,10 +52,14 @@
 (def currency2 {::c/name "Grams of gold"})
 (def currencies {1 currency1 2 currency2})
 
-(defn- transaction [splits]
-  {::t/description ""
-   ::t/date 1
-   ::t/splits splits})
+(defn- transaction
+  ([id splits]
+   (transaction id 1 splits))
+  ([id date splits]
+   {::t/id id
+    ::t/description ""
+    ::t/date date
+    ::t/splits splits}))
 
 (defn- split [account amount]
   {::t/description ""
@@ -66,11 +70,35 @@
   (t/valid-transaction? transaction accounts currencies))
 
 (deftest consistency-validations
+  (testing "Validation functions checks specs"
+    (is (not (valid-transaction?
+               {::t/description "abc" ::t/date 1 ::t/splits splits}))))
   (testing "Splits need to be balanced"
     (are [valid transaction] (= (valid-transaction? transaction) valid)
-         true (transaction [(split 1 1.0) (split 2 -1.0)])
-         false (transaction [(split 1 1.0) (split 2 2.0)])))
+         true (transaction 1 [(split 1 1.0) (split 2 -1.0)])
+         false (transaction 2 [(split 1 1.0) (split 2 2.0)])))
   ; (testing "Accounts all exist"
   ;   (are [valid transaction] (= (valid-transaction? transaction) valid)
   ;        false (transaction [(split 1 1.0) (split 7 -1.0)])))
   )
+
+(defn- balanced-splits [[account1 account2] amount]
+  [(split account1 amount)
+   (split account2 (- amount))])
+
+(deftest get-account-transactions
+  (testing "Returns transactions containing account id"
+    (are [transactions-map account-id result]
+         (= (t/get-account-transactions transactions-map account-id) result)
+
+         {}
+         1
+         []
+
+         {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+          2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+          3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+         2
+         [(transaction 1 10 (balanced-splits [1 2] 10.0))
+          (transaction 3 30 (balanced-splits [2 3] 40.0))]
+         )))

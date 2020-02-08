@@ -14,7 +14,7 @@
 
 (s/def ::transaction (s/keys :req [::id ::description ::date ::splits]
                              :opt [::c/exchange-rate]))
-(s/def ::transactions (s/coll-of ::transaction))
+(s/def ::transactions (s/map-of ::id ::transaction))
 
 (defn- get-accounts [splits]
   (into #{} (map ::account splits)))
@@ -28,4 +28,17 @@
 
 (defn valid-transaction? [transaction accounts currencies]
   (let [{:keys [::splits]} transaction]
-    (zero? (sum-amounts splits))))
+    (and (s/valid? ::transaction transaction)
+         (zero? (sum-amounts splits)))))
+
+(defn- account-in-splits? [account-id splits]
+  (s/assert ::splits splits)
+  (some #(= (::account %) account-id) splits))
+
+(defn- account-in-transaction? [account-id transaction]
+  (s/assert ::transaction transaction)
+  (account-in-splits? account-id (::splits transaction)))
+
+(defn get-account-transactions [transactions-map account-id]
+  (let [transactions (vals transactions-map)]
+    (filterv (partial account-in-transaction? account-id) transactions)))

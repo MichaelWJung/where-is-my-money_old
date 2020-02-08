@@ -9,6 +9,6 @@
 (s/def ::db (s/keys :req-un [::data]))
 
 (def default-db
-  {:data {:transactions []
+  {:data {:transactions {}
           :accounts {}
           :currencies []}})

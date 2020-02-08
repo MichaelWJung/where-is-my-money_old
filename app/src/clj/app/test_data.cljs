@@ -18,13 +18,13 @@
     ::t/account account2}])
 
 (defn- generate-transaction [i]
-  {::t/id i
-   ::t/description (str "Transaktion " i)
-   ::t/splits (generate-splits [0 (+ 1 (mod i 5))] (index-to-amount i))
-   ::t/date (get-date i)})
+  [i {::t/id i
+      ::t/description (str "Transaktion " i)
+      ::t/splits (generate-splits [0 (+ 1 (mod i 5))] (index-to-amount i))
+      ::t/date (get-date i)}])
 
 (defn generate-transactions []
-  (mapv generate-transaction (range 200)))
+  (into {} (map generate-transaction (range 200))))
 
 (defn- generate-account [i]
   [i {::a/name (str "Account " i)
