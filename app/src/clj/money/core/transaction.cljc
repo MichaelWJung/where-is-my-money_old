@@ -40,5 +40,10 @@
   (account-in-splits? account-id (::splits transaction)))
 
 (defn get-account-transactions [transactions-map account-id]
-  (let [transactions (vals transactions-map)]
-    (filterv (partial account-in-transaction? account-id) transactions)))
+  (let [transactions (vals transactions-map)
+        filtered (filterv (partial account-in-transaction? account-id)
+                          transactions)]
+    (vec (sort-by ::date filtered))))
+
+(defn remove-transaction-by-id [transactions id]
+  (dissoc transactions id))

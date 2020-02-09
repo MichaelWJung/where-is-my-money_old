@@ -24,7 +24,7 @@
       ::t/date (get-date i)}])
 
 (defn generate-transactions []
-  (into {} (map generate-transaction (range 200))))
+  (into {} (map generate-transaction (range 500))))
 
 (defn- generate-account [i]
   [i {::a/name (str "Account " i)

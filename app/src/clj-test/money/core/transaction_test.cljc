@@ -87,7 +87,7 @@
    (split account2 (- amount))])
 
 (deftest get-account-transactions
-  (testing "Returns transactions containing account id"
+  (testing "Returns transactions containing account id, sorted by date"
     (are [transactions-map account-id result]
          (= (t/get-account-transactions transactions-map account-id) result)
 
@@ -101,4 +101,31 @@
          2
          [(transaction 1 10 (balanced-splits [1 2] 10.0))
           (transaction 3 30 (balanced-splits [2 3] 40.0))]
-         )))
+
+         {1 (transaction 1 10 (balanced-splits [1 3] 10.0))
+          2 (transaction 2 40 (balanced-splits [1 2] 20.0))
+          3 (transaction 3 20 (balanced-splits [1 3] 30.0))
+          4 (transaction 4 30 (balanced-splits [2 3] 40.0))}
+         1
+         [(transaction 1 10 (balanced-splits [1 3] 10.0))
+          (transaction 3 20 (balanced-splits [1 3] 30.0))
+          (transaction 2 40 (balanced-splits [1 2] 20.0))])))
+
+(deftest remove-transaction-by-id
+  (testing "Transaction not found: no change"
+    (is (= (t/remove-transaction-by-id
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+             4)
+           {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+            2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+            3 (transaction 3 30 (balanced-splits [2 3] 40.0))})))
+  (testing "Transaction found: removed"
+    (is (= (t/remove-transaction-by-id
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+             2)
+           {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+            3 (transaction 3 30 (balanced-splits [2 3] 40.0))}))))

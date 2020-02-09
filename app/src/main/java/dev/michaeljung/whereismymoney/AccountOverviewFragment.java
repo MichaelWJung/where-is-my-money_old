@@ -1,6 +1,7 @@
 package dev.michaeljung.whereismymoney;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class AccountOverviewFragment extends CljsFragment {
+public class AccountOverviewFragment extends CljsFragment implements TransactionListAdapter.Callback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -26,7 +27,7 @@ public class AccountOverviewFragment extends CljsFragment {
         super.onViewCreated(view, savedInstanceState);
 
         RecyclerView transactionList = view.findViewById(R.id.transactions_view);
-        TransactionListAdapter adapter = new TransactionListAdapter(getContext());
+        TransactionListAdapter adapter = new TransactionListAdapter(getContext(), this);
         transactionList.setAdapter(adapter);
         transactionList.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -38,5 +39,14 @@ public class AccountOverviewFragment extends CljsFragment {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Override
+    public void removeTransaction(int id) {
+        Log.d("xyz", "removing tr: " + Integer.toString(id));
+        JSONArray event = new JSONArray();
+        event.put("remove-transaction");
+        event.put(id);
+        dispatch(event);
     }
 }
