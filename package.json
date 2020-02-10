@@ -4,7 +4,9 @@
   "description": "",
   "main": "example.js",
   "dependencies": {
-    "liquidcore": "^0.7.2"
+    "liquidcore": "^0.7.2",
+    "react": "16.9.0",
+    "react-dom": "16.9.0"
   },
   "devDependencies": {},
   "scripts": {
@@ -16,5 +18,16 @@
     "postinstall": "node node_modules/liquidcore/lib/cli.js postinstall"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "liquidcore": {
+    "entry": [
+      "app/build-clj/app.js"
+    ],
+    "gradle_options": {
+      "module": "app"
+    },
+    "bundler_output": {
+      "android": "app/src/main/res/raw"
+    }
+  }
 }

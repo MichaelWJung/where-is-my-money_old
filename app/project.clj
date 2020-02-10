@@ -17,15 +17,13 @@
                                     "package-lock.json"
                                     "build-clj"]
   :shadow-cljs {:nrepl  {:port 8777}
-                :builds {:app {:target     :browser
-                               ; :optimizations :simple
+                :builds {:app {:target :node-script
                                :optimizations :advanced
-                               :output-dir "build-clj/dev"
+                               :output-to "build-clj/app.js"
+                               :hashbang false
                                :compiler-options {:output-feature-set :es5
                                                   :elide-asserts true}
-                               ; :pretty-print true
-                               :modules    {:app {:init-fn app.core/-main}}
-                               }
+                               :main app.core/-main}
                          :test {:target :node-test
                                 :output-to "build-clj/test.js"
                                 :autorun true

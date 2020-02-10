@@ -1,11 +1,11 @@
-// task bundleLiquidCoreCode(type: Exec) {
-//   workingDir rootProject.projectDir
-//   executable '/usr/bin/env'
-//   args = ['node', 'node_modules/liquidcore/lib/cli.js', 'bundle', '--platform=android']
-// }
-// project.afterEvaluate {
-//     preBuild.dependsOn bundleLiquidCoreCode
-// }
+task bundleLiquidCoreCode(type: Exec) {
+  workingDir rootProject.projectDir
+  executable '/usr/bin/env'
+  args = ['node', 'node_modules/liquidcore/lib/cli.js', 'bundle', '--platform=android']
+}
+project.afterEvaluate {
+    preBuild.dependsOn bundleLiquidCoreCode
+}
 dependencies {
 }
 apply from: new File(rootProject.projectDir, 'node_modules/liquidcore/include.gradle')
