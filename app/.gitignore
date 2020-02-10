@@ -7,3 +7,5 @@ package-lock.json
 package.json
 shadow-cljs.edn
 src/main/res/raw/app.js
+.lein-repl-history
+.nrepl-port
