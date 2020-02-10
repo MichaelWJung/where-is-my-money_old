@@ -5,6 +5,7 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
+                 [com.cognitect/transit-cljs "0.8.256"]
                  [thheller/shadow-cljs      "2.8.83"]
                  [reagent                   "0.9.1"]
                  [re-frame                  "0.11.0-rc2"]]
