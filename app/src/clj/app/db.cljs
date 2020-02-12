@@ -6,9 +6,11 @@
 
 (s/def ::currencies (fn [_] true))
 (s/def ::data (s/keys :req-un [::t/transactions ::a/accounts ::currencies]))
-(s/def ::db (s/keys :req-un [::data]))
+(s/def ::navigation #{:transaction :account})
+(s/def ::db (s/keys :req-un [::data ::navigation]))
 
 (def default-db
   {:data {:transactions {}
           :accounts {}
-          :currencies []}})
+          :currencies []}
+   :navigation :account})

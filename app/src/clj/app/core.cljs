@@ -51,7 +51,7 @@
 (defn- initialize-store []
   (reset! st/store
           (reify st/Store
-            (save [_ data] (a/data->store data)))))
+            (save [_ data] (do)))))
 
 (defn -main [& _]
   (s/check-asserts true)

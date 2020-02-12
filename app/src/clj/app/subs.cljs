@@ -34,3 +34,8 @@
   :<- [:accounts]
   (fn [[reduced-transactions accounts] _]
     (present-transactions reduced-transactions accounts "en-US")))
+
+(rf/reg-sub
+  :current-screen
+  (fn [db _]
+    (:navigation db)))

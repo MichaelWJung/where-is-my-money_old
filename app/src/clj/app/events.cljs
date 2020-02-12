@@ -13,7 +13,10 @@
 (def check-spec-interceptor (rf/after (partial check-and-throw :app.db/db)))
 
 (def transaction-interceptors [check-spec-interceptor
-                               (rf/path :data :transactions) ])
+                               (rf/path :data :transactions)])
+
+(def navigation-interceptors [check-spec-interceptor
+                              (rf/path :navigation)])
 
 (rf/reg-event-db
   :initialize-db
@@ -26,3 +29,13 @@
   transaction-interceptors
   (fn [transactions [_ id-to-remove]]
     (t/remove-transaction-by-id transactions id-to-remove)))
+
+(rf/reg-event-db
+  :open-new-transaction-screen
+  navigation-interceptors
+  (fn [_ _] :transaction))
+
+(rf/reg-event-db
+  :close-transaction-screen
+  navigation-interceptors
+  (fn [_ _] :account))

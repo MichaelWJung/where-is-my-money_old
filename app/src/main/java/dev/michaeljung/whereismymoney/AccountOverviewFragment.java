@@ -5,17 +5,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
 public class AccountOverviewFragment extends CljsFragment implements TransactionListAdapter.Callback {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -30,6 +32,10 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
         TransactionListAdapter adapter = new TransactionListAdapter(getContext(), this);
         transactionList.setAdapter(adapter);
         transactionList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FloatingActionButton floatingActionButton = view.findViewById(R.id.button_add_transaction);
+        floatingActionButton.setOnClickListener(
+                v -> dispatch("open-new-transaction-screen"));
 
         subscribe("account-overview", payload -> {
             try {
