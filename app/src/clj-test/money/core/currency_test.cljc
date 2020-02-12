@@ -38,9 +38,9 @@
          7.5 [5.0 1 2 [1 2 1.5]]
          10.0 [4.0 1 2 [1 2 2.5]]
          2.0 [4.0 2 1 [1 2 2.0]])
-    ; (is (thrown? ExceptionInfo
-    ;              (c/convert 4.0 2 3 [1 2 2.0])))
-    ; (is (thrown? ExceptionInfo
-    ;              (c/convert 4.0 3 1 [1 2 2.0])))
+    (is (thrown? ExceptionInfo
+                 (c/convert 4.0 2 3 [1 2 2.0])))
+    (is (thrown? ExceptionInfo
+                 (c/convert 4.0 3 1 [1 2 2.0])))
     ))
 

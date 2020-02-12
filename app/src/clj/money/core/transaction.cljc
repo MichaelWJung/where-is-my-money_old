@@ -47,3 +47,20 @@
 
 (defn remove-transaction-by-id [transactions id]
   (dissoc transactions id))
+
+(defn- create-balanced-splits [account1 account2 amount]
+  [{::description "" ::account account1 ::amount amount}
+   {::description "" ::account account2 ::amount (- amount)}])
+
+(defn create-simple-transaction
+  [{:keys [id description date account1 account2 amount]}]
+  (if (some nil? [id description date account1 account2 amount])
+    (throw (ex-info "Not all transaction fields were specified" {}))
+    {::id id
+     ::description description
+     ::date date
+     ::splits (create-balanced-splits account1 account2 amount)}))
+
+(defn add-simple-transaction [transactions new-transaction]
+  (let [transaction (create-simple-transaction new-transaction)]
+    (assoc transactions (::id transaction) transaction)))

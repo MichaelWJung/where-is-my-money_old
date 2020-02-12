@@ -1,5 +1,6 @@
 (ns money.core.transaction-test
-  (:require [clojure.test :refer [deftest is are testing run-tests]]
+  (:require [clojure.core :refer [ExceptionInfo]]
+            [clojure.test :refer [deftest is are testing run-tests]]
             [clojure.spec.alpha :as s]
             [money.core.account :as a]
             [money.core.currency :as c]
@@ -129,3 +130,43 @@
              2)
            {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
             3 (transaction 3 30 (balanced-splits [2 3] 40.0))}))))
+
+(deftest create-simple-transaction
+  (testing "Simple transaction is created"
+    (is
+      (= (t/create-simple-transaction {:id 123
+                                       :description "abcd"
+                                       :date 10
+                                       :account1 1
+                                       :account2 2
+                                       :amount 10.0})
+         {::t/id 123
+          ::t/description "abcd"
+          ::t/date 10
+          ::t/splits [{::t/description "" ::t/account 1 ::t/amount 10.0}
+                      {::t/description "" ::t/account 2 ::t/amount -10.0}]})))
+  (testing "Return nil if value is missing"
+    (are [transaction]
+         (thrown? ExceptionInfo (t/create-simple-transaction transaction))
+         {:id 123 :description "abcd" :date 10 :account1 1 :account2 2}
+         {:id 123 :description "abcd" :date 10 :account1 1 :amount 10.0}
+         {:id 123 :description "abcd" :date 10 :account2 2 :amount 10.0}
+         {:description "abcd" :date 10 :account1 1 :account2 2 :amount 10.0})))
+
+(deftest add-simple-transaction
+  (testing "Adds simple transaction"
+    (is (= (t/add-simple-transaction
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+             {:id 123
+              :description "abcd"
+              :date 10
+              :account1 1
+              :account2 2
+              :amount 10.0})
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))
+              123 (assoc (transaction 123 10 (balanced-splits [1 2] 10.0))
+                         ::t/description "abcd")}))))
