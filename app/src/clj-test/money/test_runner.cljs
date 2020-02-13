@@ -5,6 +5,7 @@
             [money.core.currency-test]
             [money.core.transaction-test]
             [money.presenters.account-presenter-test]
+            [money.presenters.transaction-presenter-test]
             ))
 
 (defn main[]

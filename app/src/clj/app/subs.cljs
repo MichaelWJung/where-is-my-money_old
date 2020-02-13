@@ -1,8 +1,11 @@
 (ns app.subs
   (:require [re-frame.core :as rf]
+            [app.db :as db]
             [money.core.transaction :as t]
+            [money.screens.transaction :as st]
             [money.presenters.account-presenter :refer
-             [reduce-transactions present-transactions]]))
+             [reduce-transactions present-transactions]]
+            [money.presenters.transaction-presenter :as tp]))
 
 (rf/reg-sub
   :accounts
@@ -13,6 +16,11 @@
   :transactions
   (fn [db _]
     (get-in db [:data :transactions])))
+
+(rf/reg-sub
+  :transaction-screen-state
+  (fn [db _]
+    (get-in db [::db/screen-states ::st/transaction-screen-state])))
 
 (rf/reg-sub
   :account-transactions
@@ -39,3 +47,10 @@
   :current-screen
   (fn [db _]
     (:navigation db)))
+
+(rf/reg-sub
+  :transaction-screen
+  :<- [:transaction-screen-state]
+  :<- [:accounts]
+  (fn [[screen-state accounts] _]
+    (tp/present-transaction-screen screen-state accounts)))

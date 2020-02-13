@@ -23,8 +23,10 @@
 (defn setup-android-interaction [init-fn]
   (.on js/LiquidCore
        "dispatch"
-       (fn [map]
-         (let [event (update-in (js->clj map) [0] keyword)]
+       (fn [event-map]
+         (let [event (-> event-map
+                         (js->clj :keywordize-keys true)
+                         (update-in [0] keyword))]
            (rf/dispatch event))))
 
   (.on js/LiquidCore
