@@ -1,7 +1,5 @@
 package dev.michaeljung.whereismymoney;
 
-import android.os.Bundle;
-
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 

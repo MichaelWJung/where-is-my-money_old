@@ -1,7 +1,6 @@
 package dev.michaeljung.whereismymoney;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-public class AccountOverviewFragment extends CljsFragment implements TransactionListAdapter.Callback {
+public class AccountOverviewFragment extends CljsFragment implements TransactionListAdapter.Callback,
+        BackButtonListener {
+
+    interface Callbacks {
+        void setAccountFragmentTitle(String title);
+    }
 
     @Nullable
     @Override
@@ -27,6 +31,8 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        Callbacks callbacks = (Callbacks) getActivity();
 
         RecyclerView transactionList = view.findViewById(R.id.transactions_view);
         TransactionListAdapter adapter = new TransactionListAdapter(getContext(), this);
@@ -41,6 +47,7 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
             try {
                 JSONArray transactions = payload.getJSONArray("value");
                 adapter.setTransactions(transactions);
+                callbacks.setAccountFragmentTitle("Account xyz");
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -49,10 +56,14 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
 
     @Override
     public void removeTransaction(int id) {
-        Log.d("xyz", "removing tr: " + Integer.toString(id));
         JSONArray event = new JSONArray();
         event.put("remove-transaction");
         event.put(id);
         dispatch(event);
+    }
+
+    @Override
+    public void onBackButtonClicked() {
+
     }
 }
