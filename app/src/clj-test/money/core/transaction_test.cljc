@@ -170,3 +170,24 @@
               3 (transaction 3 30 (balanced-splits [2 3] 40.0))
               123 (assoc (transaction 123 10 (balanced-splits [1 2] 10.0))
                          ::t/description "abcd")}))))
+
+(deftest add-transaction
+  (testing "Id does not exist => add"
+    (is (= (t/add-transaction
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+             (transaction 123 10 (balanced-splits [1 2] 10.0)))
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))
+              123 (transaction 123 10 (balanced-splits [1 2] 10.0))})))
+  (testing "Id already exists => replace"
+    (is (= (t/add-transaction
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 30 (balanced-splits [2 3] 40.0))}
+             (transaction 3 10 (balanced-splits [1 2] 10.0)))
+             {1 (transaction 1 10 (balanced-splits [1 2] 10.0))
+              2 (transaction 2 20 (balanced-splits [1 3] 20.0))
+              3 (transaction 3 10 (balanced-splits [1 2] 10.0))}))))

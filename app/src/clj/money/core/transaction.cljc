@@ -52,6 +52,7 @@
   [{::description "" ::account account1 ::amount amount}
    {::description "" ::account account2 ::amount (- amount)}])
 
+; TODO: UNUSED? REMOVE?
 (defn create-simple-transaction
   [{:keys [id description date account1 account2 amount]}]
   (if (some nil? [id description date account1 account2 amount])
@@ -61,6 +62,10 @@
      ::date date
      ::splits (create-balanced-splits account1 account2 amount)}))
 
+; TODO: UNUSED? REMOVE?
 (defn add-simple-transaction [transactions new-transaction]
   (let [transaction (create-simple-transaction new-transaction)]
     (assoc transactions (::id transaction) transaction)))
+
+(defn add-transaction [transactions new-transaction]
+  (assoc transactions (::id new-transaction) new-transaction))

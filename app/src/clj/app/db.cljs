@@ -19,10 +19,11 @@
           :accounts {}
           :currencies []}
    ::screen-states {::st/transaction-screen-state
-                    {::st/description "asdf"
-                     ::st/date 12345678910
-                     ::st/account-id 2
-                     ::st/amount 10.0
-                     ::st/id 31337
+                    {::st/description ""
+                     ::st/date 0
+                     ::st/account-id 0
+                     ::st/amount 0.0
+                     ::st/id 1
                      ::st/new? true}}
-   :navigation :account})
+   :navigation :account
+   :highest-ids {:transaction 1}})

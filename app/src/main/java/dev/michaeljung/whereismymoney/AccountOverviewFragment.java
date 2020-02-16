@@ -41,7 +41,7 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
 
         FloatingActionButton floatingActionButton = view.findViewById(R.id.button_add_transaction);
         floatingActionButton.setOnClickListener(
-                v -> dispatch("open-new-transaction-screen"));
+                v -> dispatch("new-transaction"));
 
         subscribe("account-overview", payload -> {
             try {
@@ -57,7 +57,7 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
     @Override
     public void removeTransaction(int id) {
         JSONArray event = new JSONArray();
-        event.put("remove-transaction");
+        event.put("edit-transaction");
         event.put(id);
         dispatch(event);
     }

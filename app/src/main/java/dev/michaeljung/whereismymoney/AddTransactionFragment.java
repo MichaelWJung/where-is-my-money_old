@@ -1,24 +1,34 @@
 package dev.michaeljung.whereismymoney;
 
+import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class AddTransactionFragment extends CljsFragment implements BackButtonListener {
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class AddTransactionFragment extends CljsFragment implements BackButtonListener, DatePickerDialog.OnDateSetListener {
     private EditText description;
-    private EditText date;
+    private TextView date;
     private EditText amount;
     private Spinner account;
+    private Calendar calendar;
 
     interface Callbacks {
         void setTransactionFragmentTitle(String title);
@@ -35,13 +45,28 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
         super.onViewCreated(view, savedInstanceState);
 
         Callbacks callbacks = (Callbacks) getActivity();
+        calendar = Calendar.getInstance();
 
         description = view.findViewById(R.id.transaction_description);
         date = view.findViewById(R.id.transaction_date);
         amount = view.findViewById(R.id.transaction_amount);
         account = view.findViewById(R.id.transaction_account);
 
+        date.setOnClickListener(v -> {
+            DatePickerFragment datePickerFragment = new DatePickerFragment(calendar);
+            datePickerFragment.setTargetFragment(this, 0);
+            datePickerFragment.show(getFragmentManager(), "xyz");
+        });
+
         Button okButton = view.findViewById(R.id.button_transaction_save);
+        okButton.setOnClickListener(v -> {
+            dispatchTransactionData();
+            dispatch("save-transaction");
+            closeTransactionScreen();
+        });
+
+        Button cancelButton = view.findViewById(R.id.button_transaction_cancel);
+        cancelButton.setOnClickListener(v -> closeTransactionScreen());
 
         subscribe("transaction-screen", payload -> {
             try {
@@ -50,13 +75,49 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
                 amount.setText(value.getString("amount"));
                 okButton.setText(value.getString("ok-button-text"));
                 callbacks.setTransactionFragmentTitle(value.getString("screen-title"));
+                calendar.setTimeInMillis(value.getLong("date"));
+                updateDateView();
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
 
-        Button cancelButton = view.findViewById(R.id.button_transaction_cancel);
-        cancelButton.setOnClickListener(v -> closeTransactionScreen());
+    @Override
+    public void onStop() {
+        dispatchTransactionData();
+        super.onStop();
+    }
+
+    private void dispatchTransactionData() {
+        try {
+            JSONObject transactionData = new JSONObject();
+            transactionData.put("description", description.getText());
+            transactionData.put("date", calendar.getTimeInMillis());
+            transactionData.put("amount", amount.getText());
+            transactionData.put("account-id", 2);
+            JSONArray event = new JSONArray();
+            event.put("update-transaction-data");
+            event.put(transactionData);
+            dispatch(event);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        calendar.set(year, month, dayOfMonth);
+        updateDateView();
+    }
+
+    private void updateDateView() {
+        Activity activity = getActivity();
+        if (activity != null) {
+            Date date = calendar.getTime();
+            DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(activity);
+            this.date.setText(dateFormat.format(date));
+        }
     }
 
     @Override
@@ -64,7 +125,7 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
         closeTransactionScreen();
     }
 
-    void closeTransactionScreen() {
+    private void closeTransactionScreen() {
         dispatch("close-transaction-screen");
     }
 }
