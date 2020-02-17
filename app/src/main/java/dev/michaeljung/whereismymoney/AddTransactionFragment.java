@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -20,8 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class AddTransactionFragment extends CljsFragment implements BackButtonListener, DatePickerDialog.OnDateSetListener {
     private EditText description;
@@ -52,6 +55,10 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
         amount = view.findViewById(R.id.transaction_amount);
         account = view.findViewById(R.id.transaction_account);
 
+        ArrayAdapter<String> accountAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item);
+        accountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        account.setAdapter(accountAdapter);
+
         date.setOnClickListener(v -> {
             DatePickerFragment datePickerFragment = new DatePickerFragment(calendar);
             datePickerFragment.setTargetFragment(this, 0);
@@ -76,11 +83,22 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
                 okButton.setText(value.getString("ok-button-text"));
                 callbacks.setTransactionFragmentTitle(value.getString("screen-title"));
                 calendar.setTimeInMillis(value.getLong("date"));
+                accountAdapter.clear();
+                accountAdapter.addAll(toList(value.getJSONArray("accounts")));
+                account.setSelection(value.getInt("selected-account"));
                 updateDateView();
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private List<String> toList(JSONArray accountsJson) throws JSONException {
+        ArrayList<String> accounts = new ArrayList<>();
+        for (int i = 0; i < accountsJson.length(); i++) {
+            accounts.add(accountsJson.getString(i));
+        }
+        return accounts;
     }
 
     @Override
@@ -95,7 +113,7 @@ public class AddTransactionFragment extends CljsFragment implements BackButtonLi
             transactionData.put("description", description.getText());
             transactionData.put("date", calendar.getTimeInMillis());
             transactionData.put("amount", amount.getText());
-            transactionData.put("account-id", 2);
+            transactionData.put("account-id", account.getSelectedItemPosition());
             JSONArray event = new JSONArray();
             event.put("update-transaction-data");
             event.put(transactionData);
