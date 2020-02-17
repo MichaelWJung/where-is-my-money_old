@@ -21,6 +21,11 @@
 (def transaction-interceptors [check-spec-interceptor
                                (rf/path :data :transactions)])
 
+(rf/reg-cofx
+  :now
+  (fn [cofx _data]
+    (assoc cofx :now (.now js/Date))))
+
 (rf/reg-event-db
   :initialize-db
   [check-spec-interceptor]
@@ -72,16 +77,19 @@
                     (st/transaction->screen-data 1 transaction))
           (assoc :navigation :transaction)))))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :new-transaction
-  [check-spec-interceptor]
-  (fn [db _]
-    (let [id (inc (get-in db [:highest-ids :transaction]))]
-      (-> db
-          (assoc-in [::db/screen-states ::st/transaction-screen-state]
-                    (st/new-transaction id 100000000 0))
-          (assoc-in [:highest-ids :transaction] id)
-          (assoc :navigation :transaction)))))
+  [check-spec-interceptor
+   (rf/inject-cofx :now)]
+  (fn [cofx _]
+    (let [db (:db cofx)
+          now (:now cofx)
+          id (inc (get-in db [:highest-ids :transaction]))]
+      {:db (-> db
+               (assoc-in [::db/screen-states ::st/transaction-screen-state]
+                         (st/new-transaction id now 0))
+               (assoc-in [:highest-ids :transaction] id)
+               (assoc :navigation :transaction))})))
 
 (rf/reg-event-db
   :close-transaction-screen
