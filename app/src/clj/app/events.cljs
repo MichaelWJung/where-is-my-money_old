@@ -55,8 +55,10 @@
 
           new-transaction
           (st/screen-data->transaction 1 screen-data)]
-      (update-in db [:data :transactions]
-                 #(t/add-transaction % new-transaction)))))
+      (-> db
+          (update-in [:data :transactions]
+                     #(t/add-transaction % new-transaction))
+          (assoc :navigation :account)))))
 
 ; (rf/reg-event-db
 ;   :save-transaction

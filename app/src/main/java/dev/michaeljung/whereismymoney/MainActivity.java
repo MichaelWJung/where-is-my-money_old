@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 
 import org.json.JSONException;
 
-public class MainActivity extends CljsActivity implements AddTransactionFragment.Callbacks,
+public class MainActivity extends CljsActivity implements TransactionFragment.Callbacks,
         AccountOverviewFragment.Callbacks {
 
     private ActionBar actionBar;
@@ -50,7 +50,7 @@ public class MainActivity extends CljsActivity implements AddTransactionFragment
 
     private void showTransaction() {
         Log.d("xyz", "Show transaction");
-        AddTransactionFragment fragment = new AddTransactionFragment();
+        TransactionFragment fragment = new TransactionFragment();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

@@ -14,6 +14,10 @@ public class DatePickerFragment extends DialogFragment {
 
     private Calendar calendar;
 
+    public DatePickerFragment() {
+        calendar = Calendar.getInstance();
+    }
+
     DatePickerFragment(Calendar calendar) {
         this.calendar = calendar;
     }
@@ -21,14 +25,10 @@ public class DatePickerFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        if (calendar == null) {
-            calendar = Calendar.getInstance();
-        }
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
-
-        DatePickerDialog.OnDateSetListener onDateSetListener = (DatePickerDialog.OnDateSetListener) getTargetFragment();
-        return new DatePickerDialog(getActivity(), onDateSetListener, year, month, day);
+        DatePickerDialog.OnDateSetListener listener = (DatePickerDialog.OnDateSetListener) requireParentFragment();
+        return new DatePickerDialog(getActivity(), listener, year, month, day);
     }
 }
