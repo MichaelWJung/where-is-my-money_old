@@ -32,7 +32,8 @@ public class TransactionDiffCallback extends DiffUtil.Callback {
         try {
             JSONObject oldTransaction = oldTransactions.getJSONObject(oldItemPosition);
             JSONObject newTransaction = newTransactions.getJSONObject(newItemPosition);
-            return oldTransaction.getInt("id") == newTransaction.getInt("id");
+            return oldTransaction.getInt("id") == newTransaction.getInt("id") &&
+                    oldTransaction.getInt("split-id") == newTransaction.getInt("split-id");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

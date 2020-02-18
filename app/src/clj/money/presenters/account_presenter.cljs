@@ -1,41 +1,46 @@
 (ns money.presenters.account-presenter
   (:require [clojure.spec.alpha :as s]
             [money.core.account :as a]
+            [money.core.utils :as u]
             [reagent.core :as reagent]
             [re-frame.core :as rf]
             [money.core.transaction :as t]))
 
 (s/def ::id int?)
+(s/def ::split-id int?)
 (s/def ::description string?)
 (s/def ::other-account int?)
 (s/def ::amount number?)
 (s/def ::date int?)
 (s/def ::reduced-transaction
-  (s/keys :req [::id ::description ::other-account ::amount ::date]))
+  (s/keys :req [::id ::split-id ::description ::other-account ::amount ::date]))
 (s/def ::reduced-transactions (s/coll-of ::reduced-transaction))
 (s/def ::balance number?)
 (s/def ::balances (s/coll-of ::balance))
 
-(defn- get-account-split [account-id splits]
-  ;TODO: Handle transactions with more than one split per account
-  (first (filter #(= account-id (::t/account %)) splits)))
+(defn- get-account-splits [account-id splits]
+  (filter #(= account-id (::t/account %)) splits))
 
-(defn- get-amount [account-id splits]
-  (let [account-split (get-account-split account-id splits)]
-    (::t/amount account-split)))
-
+;TODO: Handle transactions with more than one split per account
 (defn- get-other-account-id [this-account-id splits]
-  (first (remove #(= this-account-id %) (map ::t/account splits))))
+  (let [other-ids (u/remove-first (partial = this-account-id)
+                                  (map ::t/account splits))]
+    (first other-ids)))
 
 (defn reduce-transaction [transaction accounts account-id]
   (s/assert ::t/transaction transaction)
   (s/assert ::a/accounts accounts)
-  (let [splits (::t/splits transaction)]
-    {::id (::t/id transaction)
-     ::description (::t/description transaction)
-     ::amount (get-amount account-id splits)
-     ::date (::t/date transaction)
-     ::other-account (get-other-account-id account-id splits)}))
+  (let [splits (::t/splits transaction)
+        our-account-splits (get-account-splits account-id splits)
+        other-id (get-other-account-id account-id splits)]
+    (vec (map-indexed (fn [idx split]
+                        {::id (::t/id transaction)
+                         ::split-id idx
+                         ::description (::t/description transaction)
+                         ::amount (::t/amount split)
+                         ::date (::t/date transaction)
+                         ::other-account other-id})
+          our-account-splits))))
 
 (defn- get-amounts [reduced-transactions]
   (map ::amount reduced-transactions))
@@ -49,7 +54,7 @@
   (s/assert (s/coll-of ::t/transaction) transactions)
   (s/assert ::a/accounts accounts)
   (let [reduced-transactions
-        (map #(reduce-transaction % accounts account-id) transactions)]
+        (vec (mapcat #(reduce-transaction % accounts account-id) transactions))]
     {::reduced-transactions reduced-transactions
      ::balances (reductions + (get-amounts reduced-transactions))}))
 
@@ -66,6 +71,7 @@
   (s/assert ::reduced-transaction transaction)
   (s/assert ::a/accounts accounts)
   {:id (::id transaction)
+   :split-id (::split-id transaction)
    :description (::description transaction)
    :amount (str (::amount transaction))
    :date (convert-date (::date transaction) locale)
