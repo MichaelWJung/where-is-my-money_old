@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -32,14 +35,20 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
     private TextView date;
     private EditText amount;
     private Spinner account;
-    private Calendar calendar = Calendar.getInstance();;
+    private Calendar calendar = Calendar.getInstance();
     private ArrayAdapter<String> accountAdapter;
     private Callbacks callbacks;
     private Button okButton;
     private Button cancelButton;
 
+    private TextWatcher descriptionTextWatcher;
+    private TextWatcher amountTextWatcher;
+
     interface Callbacks {
         void setTransactionFragmentTitle(String title);
+    }
+
+    public TransactionFragment() {
     }
 
     @Override
@@ -59,13 +68,21 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
         super.onViewCreated(view, savedInstanceState);
         initializeViewFields(view);
         initializeAccountSpinner();
+        createTextWatchers();
         setOnClickListeners();
         subscribe("transaction-screen", this::updateViews);
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public void onStop() {
-        dispatchTransactionData();
+        description.removeTextChangedListener(descriptionTextWatcher);
+        amount.removeTextChangedListener(amountTextWatcher);
+        //account.setOnItemSelectedListener(null);
         super.onStop();
     }
 
@@ -73,11 +90,38 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         calendar.set(year, month, dayOfMonth);
         updateDateView();
+        dispatchTransactionData();
     }
 
     @Override
     public void onBackButtonClicked() {
         closeTransactionScreen();
+    }
+
+    private void createTextWatchers() {
+        descriptionTextWatcher = createTextWatcher(description);
+        amountTextWatcher = createTextWatcher(amount);
+    }
+
+    private TextWatcher createTextWatcher(EditText editText) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (editText.hasFocus()) {
+                    dispatchTransactionData();
+                }
+            }
+        };
     }
 
     private void initializeViewFields(@NonNull View view) {
@@ -99,6 +143,19 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
         date.setOnClickListener(v -> openDatePickerDialog());
         okButton.setOnClickListener(v -> submitTransaction());
         cancelButton.setOnClickListener(v -> closeTransactionScreen());
+        description.addTextChangedListener(descriptionTextWatcher);
+        amount.addTextChangedListener(amountTextWatcher);
+        account.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                dispatchTransactionData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     private void openDatePickerDialog() {
@@ -127,6 +184,7 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
         transactionData.put("description", description.getText());
         transactionData.put("date", calendar.getTimeInMillis());
         transactionData.put("amount", amount.getText());
+        // TODO: What if no account is selected??
         transactionData.put("account-id", account.getSelectedItemPosition());
         return transactionData;
     }
@@ -143,8 +201,8 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
         try {
             JSONObject value = payload.getJSONObject("value");
 
-            description.setText(value.getString("description"));
-            amount.setText(value.getString("amount"));
+            setTextWithoutFocus(description, value.getString("description"));
+            setTextWithoutFocus(amount, value.getString("amount"));
             okButton.setText(value.getString("ok-button-text"));
             callbacks.setTransactionFragmentTitle(value.getString("screen-title"));
 
@@ -156,6 +214,19 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
             updateDateView();
         } catch (JSONException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void setTextWithoutFocus(EditText editText, String newText) {
+        if (!editText.getText().toString().equals(newText)) {
+            boolean focused = editText.hasFocus();
+            if (focused) {
+                editText.clearFocus();
+            }
+            editText.setText(newText);
+            if (focused) {
+                editText.requestFocus();
+            }
         }
     }
 

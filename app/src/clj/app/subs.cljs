@@ -3,8 +3,7 @@
             [app.db :as db]
             [money.core.transaction :as t]
             [money.screens.transaction :as st]
-            [money.presenters.account-presenter :refer
-             [reduce-transactions present-transactions]]
+            [money.presenters.account-presenter :as ap]
             [money.presenters.transaction-presenter :as tp]))
 
 (rf/reg-sub
@@ -40,14 +39,14 @@
     [(rf/subscribe [:account-transactions account-id])
      (rf/subscribe [:accounts])])
   (fn [[transactions accounts] [_ account-id]]
-    (reduce-transactions transactions accounts account-id)))
+    (ap/reduce-transactions transactions accounts account-id)))
 
 (rf/reg-sub
   :account-overview
   :<- [:reduced-transactions 1]
   :<- [:accounts]
   (fn [[reduced-transactions accounts] _]
-    (present-transactions reduced-transactions accounts "en-US")))
+    (ap/present-transactions reduced-transactions accounts "en-US")))
 
 (rf/reg-sub
   :current-screen

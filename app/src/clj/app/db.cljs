@@ -9,7 +9,8 @@
 (s/def ::currencies (constantly true))
 (s/def ::data (s/keys :req-un [::t/transactions ::a/accounts ::currencies]))
 
-(s/def ::screen-states (s/keys :req [::st/transaction-screen-state]))
+(s/def ::screen-states (s/keys :req [::sa/account-screen-state]
+                               :opt [::st/transaction-screen-state]))
 
 (s/def ::navigation #{:transaction :account})
 
@@ -20,14 +21,6 @@
           :accounts {}
           :currencies []}
    ::screen-states {::sa/account-screen-state
-                    {::sa/account-id 0}
-
-                    ::st/transaction-screen-state
-                    {::st/description ""
-                     ::st/date 0
-                     ::st/account-id 0
-                     ::st/amount 0.0
-                     ::st/id 1
-                     ::st/new? true}}
+                    {::sa/account-id 0}}
    :navigation :account
    :highest-ids {:transaction 1}})

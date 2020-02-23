@@ -95,5 +95,8 @@
 
 (rf/reg-event-db
   :close-transaction-screen
-  navigation-interceptors
-  (fn [_ _] :account))
+  [check-spec-interceptor]
+  (fn [db _]
+    (-> db
+        (update-in [::db/screen-states] dissoc ::st/transaction-screen-state)
+        (assoc :navigation :account))))

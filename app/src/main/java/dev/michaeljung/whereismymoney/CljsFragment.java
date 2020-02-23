@@ -25,11 +25,11 @@ public abstract class CljsFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         for (String id : listenerIds) {
             application.unsubscribe(id);
         }
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     protected void doWhenReady(Runnable runnable) {
