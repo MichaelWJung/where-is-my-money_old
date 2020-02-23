@@ -2,6 +2,7 @@
   (:require [cljs.spec.alpha :as s]
             [money.core.account :as a]
             [money.core.transaction :as t]
+            [money.screens.account :as sa]
             [money.screens.transaction :as st]
             [re-frame.core :as rf]))
 
@@ -18,7 +19,10 @@
   {:data {:transactions {}
           :accounts {}
           :currencies []}
-   ::screen-states {::st/transaction-screen-state
+   ::screen-states {::sa/account-screen-state
+                    {::sa/account-id 0}
+
+                    ::st/transaction-screen-state
                     {::st/description ""
                      ::st/date 0
                      ::st/account-id 0

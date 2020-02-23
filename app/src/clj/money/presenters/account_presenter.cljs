@@ -84,3 +84,10 @@
         balances (::balances transactions-and-balances)]
     (s/assert ::reduced-transactions transactions)
     (map #(present-transaction %1 %2 accounts locale) transactions balances)))
+
+(defn- present-account-name [account]
+  (s/assert ::a/account account)
+  (::a/name account))
+
+(defn present-account-names [accounts]
+  (mapv present-account-name (vals accounts)))

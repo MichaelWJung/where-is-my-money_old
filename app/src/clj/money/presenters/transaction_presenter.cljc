@@ -1,6 +1,7 @@
 (ns money.presenters.transaction-presenter
   (:require [clojure.spec.alpha :as s]
             [money.core.account :as a]
+            [money.presenters.account-presenter :as ap]
             [money.screens.transaction :as st]))
 
 (def new-transaction-title "New transaction")
@@ -27,10 +28,6 @@
                 ::selected-account
                 ::accounts]))
 
-(defn- present-account [account]
-  (s/assert ::a/account account)
-  (::a/name account))
-
 (defn present-transaction-screen [screen-state accounts]
   (s/assert ::st/transaction-screen-state screen-state)
   (s/assert ::a/accounts accounts)
@@ -41,4 +38,4 @@
      ::date (::st/date screen-state)
      ::amount (str (::st/amount screen-state))
      ::selected-account (::st/account-id screen-state)
-     ::accounts (mapv present-account (vals accounts))}))
+     ::accounts (ap/present-account-names accounts)}))

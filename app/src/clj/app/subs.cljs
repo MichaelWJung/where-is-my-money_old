@@ -29,6 +29,12 @@
     (t/get-account-transactions transactions account-id)))
 
 (rf/reg-sub
+  :account-names
+  :<- [:accounts]
+  (fn [accounts _]
+    (ap/present-account-names accounts)))
+
+(rf/reg-sub
   :reduced-transactions
   (fn [[_ account-id] _]
     [(rf/subscribe [:account-transactions account-id])

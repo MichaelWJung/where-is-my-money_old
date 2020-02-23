@@ -1,6 +1,7 @@
 (ns money.presenters.account-presenter-test
   (:require [clojure.spec.alpha :as s]
-            [clojure.test :refer [deftest is are testing run-tests]]
+            [clojure.test :refer [deftest is are testing]]
+            [money.screens.account :as sa]
             [money.presenters.account-presenter :as ap]
             [money.core.account :as a]
             [money.core.transaction :as t]))
@@ -173,3 +174,7 @@
            :date "13. Jan. 2020"
            :account "Travel"
            :balance "165"}])))
+
+(deftest present-account-names
+  (is (= (ap/present-account-names accounts)
+         ["Checking Account" "Travel" "Entertainment"])))
