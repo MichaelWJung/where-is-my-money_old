@@ -1,6 +1,6 @@
 (ns app.core
   (:require [app.android :as a]
-            [app.db]
+            [app.db :as db]
             [app.events]
             [app.store :as st]
             [app.subs]
@@ -11,6 +11,9 @@
 
 (def fs (js/require "fs"))
 
+(defn- file-exists [path]
+  (.existsSync fs path))
+
 (defn read-transit [path f]
   (.readFile fs path "utf8"
              (fn [err data]
@@ -19,10 +22,8 @@
                  (f parsed)))))
 
 (defn write-transit [path data]
-  (println "Beginning serialization.")
   (let [writer (t/writer :json)
         serialized (t/write writer data)]
-    (println "Serialized. Beginning saving.")
     (.writeFile fs path serialized
                 (fn [err] (println "The file was saved!")))))
 
@@ -31,33 +32,39 @@
 
 (def db-file "/home/local/db")
 
-(defn- initialize [data]
-  ; (println "Start reading file")
-  ; (read-transit db-file
-  ;               (fn [content]
-  ;                 (println "Finished reading file")
-  ;                 (rf/dispatch-sync [:initialize-db content])
-  ;                 (a/send-ready))))
-  (println "Starting generation")
+(defn- initialize-without-db-file []
   (let [transactions (generate-transactions)
         accounts (generate-accounts)
-        db {:transactions transactions
-            :accounts accounts
-            :currencies []}]
-    ; (write-transit db-file db)
-    (rf/dispatch-sync [:initialize-db db]))
-  (a/send-ready))
+        db {:data {:transactions transactions
+                   :accounts accounts
+                   :currencies []}}]
+    (write-transit db-file db)
+    (rf/dispatch-sync [:initialize-db db])
+    (a/send-ready)))
+
+(defn- initialize-from-db-file []
+  (read-transit db-file
+                (fn [content]
+                  (if (s/valid? ::db/db content)
+                    (do (rf/dispatch-sync [:initialize-db content])
+                        (a/send-ready))
+                    (initialize-without-db-file)))))
+
+(defn- initialize []
+  (if (file-exists db-file)
+    (initialize-from-db-file)
+    (initialize-without-db-file)))
 
 (defn- initialize-store []
   (reset! st/store
           (reify st/Store
-            (save [_ data] (do)))))
+            (save [_ db] (write-transit db-file db)))))
 
 (defn -main [& _]
   (s/check-asserts true)
   (prevent-exit-with-callback)
   (initialize-store)
-  (a/setup-android-interaction initialize)
-  (a/send-waiting-for-db))
+  (a/setup-android-interaction)
+  (initialize))
 
 (set! *main-cli-fn* -main)

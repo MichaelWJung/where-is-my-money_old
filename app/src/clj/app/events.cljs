@@ -1,5 +1,6 @@
 (ns app.events
   (:require [app.db :as db]
+            [app.store :refer [data->store]]
             [clojure.spec.alpha :as s]
             [money.adapters.account :as aa]
             [money.core.transaction :as t]
@@ -10,18 +11,20 @@
 (defn check-and-throw
   "Throws an exception if `db` doesn’t match the Spec `a-spec`."
   [a-spec db]
+  (prn db)
   (when-not (s/valid? a-spec db)
     (println "db: " db)
     (throw (ex-info (str "spec check failed: " (s/explain-str a-spec db)) {}))))
 
 (def check-spec-interceptor (rf/after (partial check-and-throw :app.db/db)))
 
-(def navigation-interceptors [check-spec-interceptor
-                              (rf/path :navigation)])
-(def screen-states-interceptors [check-spec-interceptor
-                                 (rf/path ::db/screen-states)])
+(def ->store (rf/after data->store))
+
 (def transaction-interceptors [check-spec-interceptor
+                               ->store
                                (rf/path :data :transactions)])
+
+(def data-interceptors [check-spec-interceptor ->store])
 
 (rf/reg-cofx
   :now
@@ -32,11 +35,11 @@
   :initialize-db
   [check-spec-interceptor]
   (fn [_ [_ stored]]
-    (assoc db/default-db :data stored)))
+    (merge db/default-db stored)))
 
 (rf/reg-event-db
   :set-account
-  [check-spec-interceptor]
+  data-interceptors
   (fn [db [_ account-idx]]
     (let [accounts (get-in db [:data :accounts])]
       (assoc-in db
@@ -51,7 +54,7 @@
 
 (rf/reg-event-db
   :update-transaction-data
-  [check-spec-interceptor]
+  data-interceptors
   (fn [db [_ transaction-data]]
     (let [accounts (get-in db [:data :accounts])]
       (update-in db
@@ -60,7 +63,7 @@
 
 (rf/reg-event-db
   :save-transaction
-  [check-spec-interceptor]
+  data-interceptors
   (fn [db _]
     (let [screen-data
           (get-in db [::db/screen-states ::st/transaction-screen-state])
@@ -76,18 +79,9 @@
                      #(t/add-transaction % new-transaction))
           (assoc :navigation :account)))))
 
-; (rf/reg-event-db
-;   :save-transaction
-;   [check-spec-interceptor]
-;   (fn [db [_ transaction]]
-;     (-> db
-;         (assoc :navigation :account)
-;         (update-in [:data :transactions]
-;                    #(t/add-simple-transaction % transaction)))))
-
 (rf/reg-event-db
   :edit-transaction
-  [check-spec-interceptor]
+  data-interceptors
   (fn [db [_ id]]
     (let [transaction (get-in db [:data :transactions id])
           current-account (get-in db [::db/screen-states
@@ -101,7 +95,8 @@
 (rf/reg-event-fx
   :new-transaction
   [check-spec-interceptor
-   (rf/inject-cofx :now)]
+   (rf/inject-cofx :now)
+   ->store]
   (fn [cofx _]
     (let [db (:db cofx)
           now (:now cofx)
@@ -114,7 +109,7 @@
 
 (rf/reg-event-db
   :close-transaction-screen
-  [check-spec-interceptor]
+  data-interceptors
   (fn [db _]
     (-> db
         (update-in [::db/screen-states] dissoc ::st/transaction-screen-state)

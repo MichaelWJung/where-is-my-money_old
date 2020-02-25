@@ -1,6 +1,5 @@
 package dev.michaeljung.whereismymoney;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -10,13 +9,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.liquidplayer.service.MicroService;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class CljsApplication extends android.app.Application {
@@ -51,8 +45,6 @@ public class CljsApplication extends android.app.Application {
         waiting_ready_listeners = new ArrayList<>();
 
         final MicroService.ServiceStartListener startListener = service -> {
-            clojure.addEventListener("waiting-for-db", (service1, event, payload) -> initializeDbFromFile());
-            clojure.addEventListener("store", (service1, event, payload) -> saveDbToFile(payload));
             clojure.addEventListener("ready", (service1, event, payload) -> carryOutReadyActions());
         };
 
@@ -145,43 +137,5 @@ public class CljsApplication extends android.app.Application {
     private MicroService.EventListener toLiquidCoreUiThreadListener(final EventListener listener) {
         return (service, event, payload) -> new Handler(Looper.getMainLooper()).post(
                 () -> listener.onEvent(payload));
-    }
-
-    private void initializeDbFromFile() {
-        String content = readDbFile();
-        if (content == null) {
-            content = EMPTY_APP_DB;
-        }
-        clojure.emit("initialize", content);
-    }
-
-    private void saveDbToFile(JSONObject db) {
-        try {
-            writeDbFile(db.getString("value"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String readDbFile() {
-        File file = new File(this.getFilesDir(), DB_FILE_NAME);
-        try {
-            byte[] encoded = Files.readAllBytes(file.toPath());
-            String content = new String(encoded, StandardCharsets.UTF_8);
-            Log.v(LOG_TAG, "File db successfully loaded. Content: " + content);
-            return content;
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    private void writeDbFile(String content) {
-        try {
-            FileOutputStream fos = CljsApplication.this.openFileOutput(DB_FILE_NAME, Context.MODE_PRIVATE);
-            fos.write(content.getBytes(StandardCharsets.UTF_8));
-            Log.v(LOG_TAG, "Saved todos to file. Content: " + content);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -20,7 +20,7 @@
           nil)
         (recur)))))
 
-(defn setup-android-interaction [init-fn]
+(defn setup-android-interaction []
   (.on js/LiquidCore
        "dispatch"
        (fn [event-map]
@@ -48,23 +48,8 @@
        (fn [id-string]
          (let [id (keyword (js->clj id-string))]
            (if-let [reaction (get-and-remove-reaction id)]
-             (remove-watch reaction id)))))
-
-  (.on js/LiquidCore
-       "initialize"
-       (fn [init]
-         (let [data (into (sorted-map)
-                          (-> init
-                              js->clj
-                              cljs.reader/read-string))]
-           (init-fn data)))))
-
-(defn data->store
-  [data]
-  (.emit js/LiquidCore "store" (clj->js {:value (str data)})))
-
-(defn send-waiting-for-db []
-  (.emit js/LiquidCore "waiting-for-db"))
+             (remove-watch reaction id))))))
 
 (defn send-ready []
+  (prn "g")
   (.emit js/LiquidCore "ready"))
