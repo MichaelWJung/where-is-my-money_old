@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -16,6 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,9 +69,24 @@ public class AccountOverviewFragment extends CljsFragment implements Transaction
 
         subscribe("account-names", payload -> {
             try {
+                JSONObject value = payload.getJSONObject("value");
                 accountAdapter.clear();
-                accountAdapter.addAll(toList(payload.getJSONArray("value")));
-                //accounts.setSelection(value.getInt("selected-account"));
+                accountAdapter.addAll(toList(value.getJSONArray("account-names")));
+                accounts.setSelection(value.getInt("account-idx"));
+                accounts.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        JSONArray event = new JSONArray();
+                        event.put("set-account");
+                        event.put(position);
+                        dispatch(event);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }

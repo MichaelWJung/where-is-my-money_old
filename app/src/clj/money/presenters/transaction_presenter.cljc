@@ -31,11 +31,13 @@
 (defn present-transaction-screen [screen-state accounts]
   (s/assert ::st/transaction-screen-state screen-state)
   (s/assert ::a/accounts accounts)
-  (let [new? (::st/new? screen-state)]
+  (let [new? (::st/new? screen-state)
+        account-id (::st/account-id screen-state)
+        account-list (ap/present-account-list accounts account-id)]
     {::screen-title (if new? new-transaction-title edit-transaction-title)
      ::ok-button-text (if new? create-button-text save-button-text)
      ::description (::st/description screen-state)
      ::date (::st/date screen-state)
      ::amount (str (::st/amount screen-state))
-     ::selected-account (::st/account-id screen-state)
-     ::accounts (ap/present-account-names accounts)}))
+     ::selected-account (:account-idx account-list)
+     ::accounts (:account-names account-list)}))

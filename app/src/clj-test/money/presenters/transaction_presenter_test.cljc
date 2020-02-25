@@ -16,12 +16,12 @@
          (tp/present-transaction-screen
            {::st/description "Movie tickets"
             ::st/date 123
-            ::st/account-id 2
+            ::st/account-id 7
             ::st/amount 10.0
-            ::st/id 0
+            ::st/id 1
             ::st/new? true}
-           {0 (account 0 "Cash")
-            1 (account 1 "Rent")
+           {0 (account 0 "Rent")
+            7 (account 7 "Cash")
             2 (account 2 "Car maintenance")})
 
          {::tp/screen-title tp/new-transaction-title
@@ -29,5 +29,5 @@
           ::tp/description "Movie tickets"
           ::tp/date 123
           ::tp/amount "10"
-          ::tp/selected-account 2
-          ::tp/accounts ["Cash" "Rent" "Car maintenance"]}))))
+          ::tp/selected-account 1
+          ::tp/accounts ["Car maintenance" "Cash" "Rent"]}))))

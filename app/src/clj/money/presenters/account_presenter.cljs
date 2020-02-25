@@ -1,7 +1,9 @@
 (ns money.presenters.account-presenter
   (:require [clojure.spec.alpha :as s]
+            [money.adapters.account :as aa]
             [money.core.account :as a]
             [money.core.utils :as u]
+            [money.screens.account :as sa]
             [reagent.core :as reagent]
             [re-frame.core :as rf]
             [money.core.transaction :as t]))
@@ -90,4 +92,15 @@
   (::a/name account))
 
 (defn present-account-names [accounts]
-  (mapv present-account-name (vals accounts)))
+  (vec (sort (map present-account-name (vals accounts)))))
+
+(defn present-account-list [accounts account-id]
+  (s/assert ::a/accounts accounts)
+  (let [sorted (aa/get-sorted-id-name-pairs accounts)
+        names (mapv (fn [[_ name_]] name_) sorted)
+        idx-to-ids (map-indexed (fn [idx [id _]] [idx id]) sorted)
+        idx (first (first (filter #(= (second %) account-id) idx-to-ids)))]
+    (if (nil? idx) (throw (ex-info "Account id not found" {})))
+    {:account-names names
+     :account-idx idx
+     :active-name (get names idx)}))

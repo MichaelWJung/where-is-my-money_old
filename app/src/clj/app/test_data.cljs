@@ -26,11 +26,21 @@
 (defn generate-transactions []
   (into {} (map generate-transaction (range 0))))
 
+(defn- get-account-name [i]
+  (case i
+    0 "Bargeld"
+    1 "Girokonto"
+    2 "Lebensmittel"
+    3 "Kraftstoff"
+    4 "Versicherungen"
+    5 "Forderungen"
+    (str "Konto " i)))
+
 (defn- generate-account [i]
-  [i {::a/name (str "Account " i)
-      ::a/currency 0
-      ::a/parent nil
-      ::a/type :normal}])
+  [(* 2 i) {::a/name (get-account-name i)
+            ::a/currency 0
+            ::a/parent nil
+            ::a/type :normal}])
 
 (defn generate-accounts []
   (into {} (map generate-account (range 6))))

@@ -2,6 +2,7 @@
   (:require [re-frame.core :as rf]
             [app.db :as db]
             [money.core.transaction :as t]
+            [money.screens.account :as sa]
             [money.screens.transaction :as st]
             [money.presenters.account-presenter :as ap]
             [money.presenters.transaction-presenter :as tp]))
@@ -17,35 +18,43 @@
     (get-in db [:data :transactions])))
 
 (rf/reg-sub
+  :current-account
+  (fn [db _]
+    (get-in db [::db/screen-states ::sa/account-screen-state ::sa/account-id])))
+
+(rf/reg-sub
   :transaction-screen-state
   (fn [db _]
     (get-in db [::db/screen-states ::st/transaction-screen-state])))
 
 (rf/reg-sub
-  :account-transactions
+  :current-account-transactions
   :<- [:transactions]
-  (fn [transactions [_ account-id]]
-    (t/get-account-transactions transactions account-id)))
+  :<- [:current-account]
+  (fn [[transactions current-account] _]
+    (t/get-account-transactions transactions current-account)))
 
 (rf/reg-sub
   :account-names
+  :<- [:current-account]
   :<- [:accounts]
-  (fn [accounts _]
-    (ap/present-account-names accounts)))
+  (fn [[current-account accounts] _]
+    (ap/present-account-list accounts current-account)))
 
 (rf/reg-sub
-  :reduced-transactions
-  (fn [[_ account-id] _]
-    [(rf/subscribe [:account-transactions account-id])
-     (rf/subscribe [:accounts])])
-  (fn [[transactions accounts] [_ account-id]]
-    (ap/reduce-transactions transactions accounts account-id)))
+  :current-account-reduced-transactions
+  :<- [:current-account]
+  :<- [:current-account-transactions]
+  :<- [:accounts]
+  (fn [[current-account transactions accounts] _]
+    (ap/reduce-transactions transactions accounts current-account)))
 
 (rf/reg-sub
   :account-overview
-  :<- [:reduced-transactions 1]
+  :<- [:current-account-reduced-transactions]
   :<- [:accounts]
   (fn [[reduced-transactions accounts] _]
+    (prn "rt a" reduced-transactions accounts)
     (ap/present-transactions reduced-transactions accounts "en-US")))
 
 (rf/reg-sub

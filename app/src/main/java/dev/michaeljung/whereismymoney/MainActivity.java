@@ -13,6 +13,7 @@ import org.json.JSONException;
 public class MainActivity extends CljsActivity implements TransactionFragment.Callbacks,
         AccountOverviewFragment.Callbacks {
 
+    private static final String LOG_TAG = "MainActivity";
     private ActionBar actionBar;
 
     @Override
@@ -40,7 +41,7 @@ public class MainActivity extends CljsActivity implements TransactionFragment.Ca
     }
 
     private void showAccount() {
-        Log.d("xyz", "Show account");
+        Log.d(LOG_TAG, "Show account");
         AccountOverviewFragment fragment = new AccountOverviewFragment();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -49,7 +50,7 @@ public class MainActivity extends CljsActivity implements TransactionFragment.Ca
     }
 
     private void showTransaction() {
-        Log.d("xyz", "Show transaction");
+        Log.d(LOG_TAG, "Show transaction");
         TransactionFragment fragment = new TransactionFragment();
         getSupportFragmentManager()
                 .beginTransaction()

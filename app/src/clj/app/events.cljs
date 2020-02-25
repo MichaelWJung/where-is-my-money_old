@@ -1,7 +1,9 @@
 (ns app.events
   (:require [app.db :as db]
             [clojure.spec.alpha :as s]
+            [money.adapters.account :as aa]
             [money.core.transaction :as t]
+            [money.screens.account :as sa]
             [money.screens.transaction :as st]
             [re-frame.core :as rf]))
 
@@ -33,6 +35,15 @@
     (assoc db/default-db :data stored)))
 
 (rf/reg-event-db
+  :set-account
+  [check-spec-interceptor]
+  (fn [db [_ account-idx]]
+    (let [accounts (get-in db [:data :accounts])]
+      (assoc-in db
+                [::db/screen-states ::sa/account-screen-state ::sa/account-id]
+                (aa/account-idx->id accounts account-idx)))))
+
+(rf/reg-event-db
   :remove-transaction
   transaction-interceptors
   (fn [transactions [_ id-to-remove]]
@@ -40,11 +51,12 @@
 
 (rf/reg-event-db
   :update-transaction-data
-  screen-states-interceptors
-  (fn [screens [_ transaction-data]]
-    (update screens
-            ::st/transaction-screen-state
-            #(st/update-screen % transaction-data))))
+  [check-spec-interceptor]
+  (fn [db [_ transaction-data]]
+    (let [accounts (get-in db [:data :accounts])]
+      (update-in db
+                 [::db/screen-states ::st/transaction-screen-state]
+                 #(st/update-screen % accounts transaction-data)))))
 
 (rf/reg-event-db
   :save-transaction
@@ -53,8 +65,12 @@
     (let [screen-data
           (get-in db [::db/screen-states ::st/transaction-screen-state])
 
+          current-account
+          (get-in db [::db/screen-states
+                      ::sa/account-screen-state ::sa/account-id])
+
           new-transaction
-          (st/screen-data->transaction 1 screen-data)]
+          (st/screen-data->transaction current-account screen-data)]
       (-> db
           (update-in [:data :transactions]
                      #(t/add-transaction % new-transaction))
@@ -73,10 +89,13 @@
   :edit-transaction
   [check-spec-interceptor]
   (fn [db [_ id]]
-    (let [transaction (get-in db [:data :transactions id])]
+    (let [transaction (get-in db [:data :transactions id])
+          current-account (get-in db [::db/screen-states
+                                      ::sa/account-screen-state
+                                      ::sa/account-id])]
       (-> db
           (assoc-in [::db/screen-states ::st/transaction-screen-state]
-                    (st/transaction->screen-data 1 transaction))
+                    (st/transaction->screen-data current-account transaction))
           (assoc :navigation :transaction)))))
 
 (rf/reg-event-fx

@@ -1,6 +1,7 @@
 (ns money.screens.transaction-test
   (:require [clojure.core :refer [ExceptionInfo]]
             [clojure.test :refer [deftest is are testing]]
+            [money.core.account :as a]
             [money.core.transaction :as t]
             [money.screens.transaction :as st]))
 
@@ -15,6 +16,9 @@
          "abc"
          "{}")))
 
+(defn- account [name_]
+  {::a/name name_ ::a/currency 0 ::a/parent nil ::a/type :normal})
+
 (deftest update-transaction-screen
   (testing "Transaction screen data is updated correctly"
     (is (= (st/update-screen
@@ -22,17 +26,20 @@
               ::st/date 12345678910
               ::st/account-id 0
               ::st/amount 10.0
-              ::st/id 7
+              ::st/id 6
               ::st/new? true}
+             {3 (account "Car")
+              7 (account "Insurance")
+              10 (account "Entertainment")}
              {:description "Buy bitcoin"
               :date 55555
-              :account-id 2
+              :account-idx 2
               :amount "20.0"})
            {::st/description "Buy bitcoin"
             ::st/date 55555
-            ::st/account-id 2
+            ::st/account-id 7
             ::st/amount 20.0
-            ::st/id 7
+            ::st/id 6
             ::st/new? true})))
   (testing "Fails if value is missing"
     (are [new-data] (thrown?
@@ -42,14 +49,17 @@
                          ::st/date 12345678910
                          ::st/account-id 0
                          ::st/amount 10.0
-                         ::st/id 7
+                         ::st/id 6
                          ::st/new? true}
+                        {3 (account "Car")
+                         7 (account "Insurance")
+                         10 (account "Entertainment")}
                         new-data))
          {:date 55555
-          :account-id 2
+          :account-idx 2
           :amount "20.0"}
          {:description "Buy bitcoin"
-          :account-id 2
+          :account-idx 2
           :amount "20.0"}
          {:description "Buy bitcoin"
           :date 55555

@@ -1,6 +1,7 @@
 (ns money.screens.transaction
   (:require [cljs.reader]
             [cljs.spec.alpha :as s]
+            [money.adapters.account :as aa]
             [money.core.transaction :as t]))
 
 (s/def ::description string?)
@@ -19,18 +20,19 @@
       (throw (ex-info "Cannot parse amount string" {}))
       r)))
 
-(defn update-screen [screen {:keys [description date account-id amount]}]
-  (s/assert ::transaction-screen-state screen)
-  (if (or (nil? description)
-          (nil? date)
-          (nil? account-id)
-          (nil? amount))
-    (throw (ex-info "Missing values" {})))
-  (-> screen
-      (assoc ::description description)
-      (assoc ::date date)
-      (assoc ::account-id account-id)
-      (assoc ::amount (string->amount amount))))
+(defn update-screen [screen accounts new-data]
+  (let [{:keys [description date account-idx amount]} new-data]
+    (s/assert ::transaction-screen-state screen)
+    (if (or (nil? description)
+            (nil? date)
+            (nil? account-idx)
+            (nil? amount))
+      (throw (ex-info "Missing values" {})))
+    (-> screen
+        (assoc ::description description)
+        (assoc ::date date)
+        (assoc ::account-id (aa/account-idx->id accounts account-idx))
+        (assoc ::amount (string->amount amount)))))
 
 (defn- create-balanced-splits [account1 account2 amount]
   [{::t/description "" ::t/account account1 ::t/amount amount}
@@ -45,8 +47,6 @@
      ::t/splits (create-balanced-splits from-account account-id amount)}))
 
 (defn- get-split-with-id [[split1 split2 :as splits] account-id]
-  (println "Splits: " splits)
-  (println "Account id: " account-id)
   (if (not-any? #(= account-id (::t/account %)) splits)
     (throw (ex-info "Account id not found in transaction splits" {})))
   (if (= account-id (::t/account split1))
@@ -61,7 +61,6 @@
     split1))
 
 (defn transaction->screen-data [account transaction]
-  (println "Transaction " transaction)
   (let [{:keys [::t/id ::t/description ::t/date ::t/splits]} transaction]
     (if (> (count splits) 2)
       (throw

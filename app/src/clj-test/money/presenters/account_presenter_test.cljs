@@ -177,4 +177,11 @@
 
 (deftest present-account-names
   (is (= (ap/present-account-names accounts)
-         ["Checking Account" "Travel" "Entertainment"])))
+         ["Checking Account" "Entertainment" "Travel"])))
+
+(deftest present-account-list
+  (is (= (ap/present-account-list accounts 3)
+         {:account-names ["Checking Account" "Entertainment" "Travel"]
+          :account-idx 1
+          :active-name "Entertainment"}))
+  (is (thrown? ExceptionInfo (ap/present-account-list accounts {::sa/account-id 4}))))

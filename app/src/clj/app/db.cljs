@@ -21,6 +21,6 @@
           :accounts {}
           :currencies []}
    ::screen-states {::sa/account-screen-state
-                    {::sa/account-id 0}}
+                    {::sa/account-id 4}}
    :navigation :account
    :highest-ids {:transaction 1}})
