@@ -67,4 +67,6 @@
   :<- [:transaction-screen-state]
   :<- [:accounts]
   (fn [[screen-state accounts] _]
-    (tp/present-transaction-screen screen-state accounts)))
+    (if (nil? screen-state)
+      nil
+      (tp/present-transaction-screen screen-state accounts))))

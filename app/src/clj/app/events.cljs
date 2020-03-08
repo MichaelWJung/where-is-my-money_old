@@ -56,10 +56,16 @@
   :update-transaction-data
   data-interceptors
   (fn [db [_ transaction-data]]
-    (let [accounts (get-in db [:data :accounts])]
-      (update-in db
-                 [::db/screen-states ::st/transaction-screen-state]
-                 #(st/update-screen % accounts transaction-data)))))
+    (if-not (contains? (::db/screen-states db) ::st/transaction-screen-state)
+      db
+      (let [accounts (get-in db [:data :accounts])]
+        (try
+          (update-in db
+                     [::db/screen-states ::st/transaction-screen-state]
+                     #(st/update-screen % accounts transaction-data))
+          (catch ExceptionInfo e
+            (prn (ex-data e))
+            db))))))
 
 (rf/reg-event-db
   :save-transaction

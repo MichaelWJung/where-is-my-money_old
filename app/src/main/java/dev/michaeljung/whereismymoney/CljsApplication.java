@@ -62,6 +62,11 @@ public class CljsApplication extends android.app.Application {
     }
 
     void dispatch(JSONArray event) {
+        try {
+            Log.d(LOG_TAG, "Dispatching signal: " + event.getString(0));
+        } catch (JSONException e) {
+            Log.w(LOG_TAG, "Error logging dispatch");
+        }
         doWhenReady(() -> clojure.emit("dispatch", event));
     }
 

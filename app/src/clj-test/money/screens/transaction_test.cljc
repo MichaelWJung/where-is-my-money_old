@@ -66,7 +66,24 @@
           :amount "20.0"}
          {:description "Buy bitcoin"
           :date 55555
-          :account-id 2})))
+          :account-id 2}))
+  (testing "Fails on invalid amount"
+    (is (thrown?
+          ExceptionInfo
+          (st/update-screen
+            {::st/description "Buy gold"
+             ::st/date 12345678910
+             ::st/account-id 0
+             ::st/amount 10.0
+             ::st/id 6
+             ::st/new? true}
+            {3 (account "Car")
+             7 (account "Insurance")
+             10 (account "Entertainment")}
+            {:description "Buy bitcoin"
+             :date 55555
+             :account-idx 2
+             :amount "008"})))))
 
 (deftest screen-data->transaction
   (testing "Transformed to valid transaction"

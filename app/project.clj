@@ -23,7 +23,7 @@
                                :output-to "build-clj/app.js"
                                :hashbang false
                                :compiler-options {:output-feature-set :es5
-                                                  :elide-asserts true}
+                                                  :elide-asserts false}
                                :main app.core/-main}
                          :test {:target :node-test
                                 :output-to "build-clj/test.js"

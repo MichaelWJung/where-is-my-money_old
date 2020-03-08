@@ -182,6 +182,9 @@ public class TransactionFragment extends CljsFragment implements BackButtonListe
 
     private void updateViews(JSONObject payload) {
         try {
+            if (payload.isNull("value")) {
+                return;
+            }
             JSONObject value = payload.getJSONObject("value");
 
             setTextWithoutFocus(description, value.getString("description"));
